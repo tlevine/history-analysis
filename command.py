@@ -30,16 +30,27 @@ def df(filenames_series):
     return thin_df.merge(thin_df['command'].apply(features))
 
 def _is_comment(command):
-    stripped_command = command.lstrip()[0]
+    stripped_command = command.lstrip()
     return len(stripped_command) > 0 and stripped_command[0] == '#'
 
 def features(command):
-    argv = shlex.split(command)
-    return pandas.Series({
-        'command': command,
-        'is_comment': _is_comment(command),
-        'n_char': len(command),
-        'n_args': len(argv),
-        'argv0': argv[0] if len(argv) > 0 else None,
-    })
+    try:
+        argv = shlex.split(command)
+    except ValueError:
+        # Not a full command
+        return pandas.Series({
+            'command': command,
+            'is_comment': None,
+            'n_char': len(command),
+            'n_args': None,
+            'argv0': None,
+        })
+    else:
+        return pandas.Series({
+            'command': command,
+            'is_comment': _is_comment(command),
+            'n_char': len(command),
+            'n_args': len(argv),
+            'argv0': argv[0] if len(argv) > 0 else None,
+        })
 
