@@ -18,8 +18,15 @@ def extract(filename):
         columns = ['filename', 'datetime', 'command']
     )
 
+def eextract(filename):
+    try:
+        return extract(filename)
+    except:
+        print 'Error at ' + filename
+        raise
+
 def df(filenames_series):
-    thin_df = reduce(lambda a,b: pandas.concat([a,b]), imap(extract, (f for f in filenames_series)))
+    thin_df = reduce(lambda a,b: pandas.concat([a,b]), imap(eextract, (f for f in filenames_series)))
     return thin_df.merge(thin_df['command'].apply(features))
 
 def _is_comment(command):

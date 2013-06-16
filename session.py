@@ -2,9 +2,11 @@
 import os
 import datetime
 import re
-from helpers import HISTORY, open_history, fts
+import warnings
 
 import pandas
+
+from helpers import HISTORY, open_history, fts
 
 def from_filename(filename):
     'unicode -> (unicode, unicode, datetime.date)'
@@ -17,12 +19,16 @@ def features(filename):
     lines = handle.read().split('\n')
     handle.close()
 
+    with warnings.catch_warnings():
+        first_command_run = fts(lines[0])
+        last_command_run = fts(lines[-3]) if len(lines) >= 3 else None
+
     return pandas.Series({
         'filename': filename,
         'bytes': os.stat(os.path.join(HISTORY, filename)).st_size,
         'commands': len(lines)/2,
-        'first_command_run': fts(lines[0]),
-        'last_command_run': fts(lines[-3]) if len(lines) >= 3 else None,
+        'first_command_run': first_command_run,
+        'last_command_run': last_command_run,
     })
 
 def df():

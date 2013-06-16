@@ -2,7 +2,7 @@
 import session, command
 
 sessions = session.df()
-commands = command.df(sessions.head(10)['filename'])
+commands = command.df(sessions['filename'].head(1000))
 
 sessions[['filename','day']]
 commands[['filename','datetime','is_comment','n_args','n_char']]
