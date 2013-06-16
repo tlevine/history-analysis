@@ -2,7 +2,7 @@
 import os
 import datetime
 import re
-from helpers import HISTORY
+from helpers import HISTORY, open_history, fts
 
 import pandas
 
@@ -19,7 +19,7 @@ def features(filename):
 
     return pandas.Series({
         'filename': filename,
-        'bytes': os.stat(path).st_size,
+        'bytes': os.stat(os.path.join(HISTORY, filename)).st_size,
         'commands': len(lines)/2,
         'first_command_run': fts(lines[0]),
         'last_command_run': fts(lines[-3]) if len(lines) >= 3 else None,
