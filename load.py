@@ -2,13 +2,19 @@
 import os
 import datetime
 import re
+from itertools import imap, repeat
+import warnings
 
 import pandas
 
 HISTORY = os.path.join(os.environ['HOME'], '.history')
 
 def fts(commented_timestamp):
-    return datetime.datetime.fromtimestamp(float(commented_timestamp[1:]))
+    try:
+        return datetime.datetime.fromtimestamp(float(commented_timestamp[1:]))
+    except:
+        warnings.warn('Could not decode the timestamp "%s"' % commented_timestamp)
+        return None
 
 def filename_to_session(filename):
     'unicode -> (unicode, unicode, datetime.date)'
@@ -56,12 +62,16 @@ def command_info(filename):
     lines = handle.read().split('\n')
     handle.close()
 
-    timestamps = map(fts, lines[0::2][:-1])
+    datetimes = map(fts, lines[0::2][:-1])
     commands = lines[1::2]
-    return zip(timestamps, commands)
+
+    return pandas.DataFrame(
+        zip(repeat(filename), datetimes, commands),
+        columns = ['filename', 'datetime', 'command']
+    )
 
 def command_features(filenames_series):
-    filenames_series.apply()
+    return reduce(lambda a,b: pandas.concat([a,b]), imap(command_info, (f for f in filenames_series)))
 
 file_df    = file_features()
-# command_df = command_features(filenames['filenames'])
+command_df = command_features(file_df.head(10)['filename'])
