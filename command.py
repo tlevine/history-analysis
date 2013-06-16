@@ -10,6 +10,10 @@ def extract(filename):
     lines = handle.read().split('\n')
     handle.close()
 
+    if lines == ['']:
+        # sh-2013-05-30 07:19:43.899805117-07:00-21233
+        return pandas.DataFrame()
+
     datetimes = map(fts, lines[0::2][:-1])
     commands = lines[1::2]
 
