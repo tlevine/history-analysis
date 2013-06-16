@@ -37,8 +37,7 @@ def df():
     df = df[df['language'] == 'sh']
 
     # Extract stuff from the file.
-    # df = df.head(10)
-    # df = df.merge(df['filename'].apply(features))
+    df = df.merge(df['filename'].apply(features))
 
     return df
 
